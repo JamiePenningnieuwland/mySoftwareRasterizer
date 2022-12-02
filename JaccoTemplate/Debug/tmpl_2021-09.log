@@ -1,0 +1,3 @@
+﻿  game.cpp
+C:\School\myProjects\Software_Rasterizer\JaccoTemplate\game.cpp(61,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  tmpl_2021-09.vcxproj -> C:\School\myProjects\Software_Rasterizer\JaccoTemplate\tmpl_2021-09_x64_debug.exe
