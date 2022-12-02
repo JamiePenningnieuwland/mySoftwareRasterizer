@@ -554,5 +554,33 @@ void Font::Print( Surface* a_Target, const char* a_Text, int a_X, int a_Y, bool 
 		}
 	}
 }
+Pixel Vec3ToPixel(MathUtil::vec3& color)
+{
 
+	float R = MathUtil::Clamp(color.r, 0.f, 1.f);
+	float G = MathUtil::Clamp(color.g, 0.f, 1.f);
+	float B = MathUtil::Clamp(color.b, 0.f, 1.f);
+
+	//bit shift into integer 
+	byte newR = static_cast<byte>(R * 255.f);
+	byte newG = static_cast<byte>(G * 255.f);
+	byte newB = static_cast<byte>(B * 255.f);
+	int newColor = (newR << (8 * 2)) | (newG << (8 * 1)) | (newB << (8 * 0));
+	return newColor;
+}
+
+MathUtil::vec3 PixelToVec3(Pixel pixel)
+{
+
+	byte R = (pixel >> (8 * 2)) & 0xFF;
+	byte G = (pixel >> (8 * 1)) & 0xFF;
+	byte B = (pixel >> (8 * 0)) & 0xFF;
+
+	//bit shift into integer 
+	float newR = static_cast<float>(R / 255.f);
+	float newG = static_cast<float>(G / 255.f);
+	float newB = static_cast<float>(B / 255.f);
+	MathUtil::vec3 newColor = { newR, newG, newB };
+	return newColor;
+}
 }; // namespace Tmpl8

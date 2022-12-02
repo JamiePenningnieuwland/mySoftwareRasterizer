@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "vec.h"
+
 namespace Tmpl8 {
 
 constexpr unsigned int RedMask = 0xff0000;
@@ -137,5 +139,8 @@ private:
 	Surface* m_Surface;
 	int* m_Offset, *m_Width, *m_Trans, m_Height, m_CY1, m_CY2;
 };
+
+Pixel Vec3ToPixel(MathUtil::vec3& color);
+MathUtil::vec3 PixelToVec3(Pixel pixel);
 
 }; // namespace Tmpl8

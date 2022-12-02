@@ -62,12 +62,12 @@ namespace Tmpl8
 
 
 		Triangle triangle2;
-		triangle2.vertex1 = { {512 / 3*2,512 / 3,0,0} ,{0,1} };
-		triangle2.vertex2 = { { 512 / 3,512 / 3 * 2,0,0 } , {1,0} };
+		triangle2.vertex1 = { {512 / 3*2,512 / 3,0,0} ,{1,0} };
+		triangle2.vertex2 = { { 512 / 3,512 / 3 * 2,0,0 } , {0,1} };
 		triangle2.vertex3 = { {512 / 3 * 2,pos, 0, 0} ,{1,1} };
 		Triangle triangle1;
-		triangle1.vertex1 = { {512 / 3*2,512 / 3,0,0} ,{0,1} };
-		triangle1.vertex2 = { { 512 / 3,512 / 3 * 2,0,0 } , {1,0} };
+		triangle1.vertex1 = { {512 / 3*2,512 / 3,0,0} ,{1,0} };
+		triangle1.vertex2 = { { 512 / 3,512 / 3 * 2,0,0 } , {0,1} };
 		triangle1.vertex3 = { {512 / 3, 512 / 3, 0, 0} ,{0,0} };
 		screen->Clear(0xFFFFFF);
 

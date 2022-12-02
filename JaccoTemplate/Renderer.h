@@ -2,7 +2,7 @@
 
 #include "template.h"
 #include <vec.h>
-
+#include "Texture.h"
 
 namespace Tmpl8
 {
@@ -10,7 +10,7 @@ namespace Tmpl8
 	class Renderer
 	{
 	public:
-		Renderer() {}
+		Renderer(): m_Texture(8,8) {}
 		void FlushBuffers();
 		void FillShape(Triangle& triangle);
 		void temp();
@@ -25,5 +25,6 @@ namespace Tmpl8
 
 		MathUtil::vec3 m_BarycentricStart[ScreenHeight];
 		MathUtil::vec3 m_BarycentricEnd[ScreenHeight];
+		Texture m_Texture;
 	};
 };

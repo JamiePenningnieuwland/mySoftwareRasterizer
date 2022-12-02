@@ -5,20 +5,7 @@
 #include <string.h>
 #include <algorithm>
 
-Tmpl8::Pixel Vec3ToPixel(MathUtil::vec3& color)
-{
 
-	float R = MathUtil::Clamp(color.r,  0.f, 1.f);
-	float G = MathUtil::Clamp(color.g,  0.f, 1.f);
-	float B = MathUtil::Clamp(color.b,  0.f, 1.f);
-
-	//bit shift into integer 
-	byte newR = static_cast<byte>(R * 255.f);
-	byte newG = static_cast<byte>(G * 255.f);
-	byte newB = static_cast<byte>(B * 255.f);
-	int newColor = (newR << (8 * 2)) | (newG << (8 * 1)) | (newB << (8 * 0));
-	return newColor;
-}
 
 void Tmpl8::Renderer::FillShape(Triangle& aTriangle)
 {
@@ -46,7 +33,8 @@ void Tmpl8::Renderer::FillShape(Triangle& aTriangle)
 				aTriangle.vertex2.texCoords * currentBC.y +
 				aTriangle.vertex3.texCoords * currentBC.z;
 
-			m_BitMap[x + y * ScreenWidth] = Vec3ToPixel(MathUtil::vec3(texcoord.x, texcoord.y, 0.f));
+			//m_BitMap[x + y * ScreenWidth] = Vec3ToPixel(MathUtil::vec3(texcoord.x, texcoord.y, 0.f));
+			m_BitMap[x + y * ScreenWidth] = m_Texture.SampleLinearRepeat(texcoord.x*2, texcoord.y*2);
 			currentBC += BCstep;
 		}
 	}
