@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 namespace Tmpl8 {
 
 class Surface;
@@ -13,7 +12,7 @@ public:
 	void Init();
 	void Shutdown();
 	void Tick( float deltaTime );
-
+	void UpdateCamera(float deltaTime);
 	//input
 	void MouseUp(int) {  }
 	void MouseDown(int) {  }
@@ -29,7 +28,9 @@ private:
 
 private:
 	Surface* screen{ nullptr };
-
+	class Camera* camera;
+	class Model* model;
+	class Renderer* TheRenderer;
 };
 
 }; 

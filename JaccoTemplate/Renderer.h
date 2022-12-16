@@ -2,21 +2,29 @@
 
 #include "template.h"
 #include <vec.h>
-#include "Texture.h"
+
 
 namespace Tmpl8
 {
 	class Surface;
+	class Camera;
 	class Renderer
 	{
 	public:
-		Renderer(): m_Texture(8,8) {}
+		Renderer(Camera* camera): m_CameraRef(camera)
+		{
+			
+		}
 		void FlushBuffers();
-		void FillShape(Triangle& triangle);
-		void temp();
-		void DrawTriangle(Triangle aTriangle);
+		void FillShape(Vertex& vertexOne, Vertex& vertexTwo, Vertex& vertexThree);
+		void Draw(const MathUtil::mat4& modelMatrix, const Vertex* vertices, const Triangle* triangles, int numVertices, int numTriangles);
+		
+		void DrawTriangle(Vertex vertexOne, Vertex vertexTwo, Vertex vertexThree);
 		void Clear();
 		void CopyToSurface(Surface* aSurface);
+		void BindTexture(class Texture* texture) { m_BoundTexture = texture; };
+		
+		Camera* m_CameraRef{nullptr};
 	private:
 		void ScanLine(MathUtil::vec3 aStart, MathUtil::vec3 aEnd, MathUtil::vec3 aBCstart, MathUtil::vec3 aBCend, bool aRightHanded);
 		unsigned int m_BitMap[ScreenWidth * ScreenHeight * 4];
@@ -25,6 +33,6 @@ namespace Tmpl8
 
 		MathUtil::vec3 m_BarycentricStart[ScreenHeight];
 		MathUtil::vec3 m_BarycentricEnd[ScreenHeight];
-		Texture m_Texture;
+		Texture* m_BoundTexture{nullptr};
 	};
 };

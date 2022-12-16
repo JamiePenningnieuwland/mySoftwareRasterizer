@@ -1,3 +1,11 @@
-﻿  game.cpp
-C:\School\myProjects\Software_Rasterizer\JaccoTemplate\game.cpp(61,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  tmpl_2021-09.vcxproj -> C:\School\myProjects\Software_Rasterizer\JaccoTemplate\tmpl_2021-09_x64_debug.exe
+﻿  Model.cpp
+  Renderer.cpp
+  Texture.cpp
+  game.cpp
+  template.cpp
+C:\School\GitHub\mySoftwareRasterizer\JaccoTemplate\Model.h(41,5): warning C4150: deletion of pointer to incomplete type 'Tmpl8::Texture'; no destructor called (compiling source file game.cpp)
+C:\School\GitHub\mySoftwareRasterizer\JaccoTemplate\Model.h(9,8): message : see declaration of 'Tmpl8::Texture' (compiling source file game.cpp)
+C:\School\GitHub\mySoftwareRasterizer\JaccoTemplate\Model.h(41,5): warning C4150: deletion of pointer to incomplete type 'Tmpl8::Texture'; no destructor called (compiling source file Model.cpp)
+C:\School\GitHub\mySoftwareRasterizer\JaccoTemplate\Model.h(9,8): message : see declaration of 'Tmpl8::Texture' (compiling source file Model.cpp)
+C:\School\GitHub\mySoftwareRasterizer\JaccoTemplate\Model.cpp(145,104): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  tmpl_2021-09.vcxproj -> C:\School\GitHub\mySoftwareRasterizer\JaccoTemplate\tmpl_2021-09_x64_debug.exe

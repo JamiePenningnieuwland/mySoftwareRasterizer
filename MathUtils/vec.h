@@ -294,21 +294,12 @@ namespace MathUtil
 }
 	struct Vertex
 	{
-		MathUtil::vec4 position;
+		MathUtil::vec4 position = {0.f,0.f,0.f,1.f};
 		MathUtil::vec2 texCoords;
 	};
 
 	struct Triangle
 	{
-		Triangle() {};
-		union
-		{
-			Vertex vertices[3];
-			struct
-			{
-				Vertex vertex1;
-				Vertex vertex2;
-				Vertex vertex3;
-			};
-		};
+		int indices[3];
+
 	};

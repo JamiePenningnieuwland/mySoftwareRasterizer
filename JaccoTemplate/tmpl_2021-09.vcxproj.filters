@@ -13,6 +13,9 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="external\Tiny_gltf\tiny_gltf.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -30,6 +33,11 @@
     </ClInclude>
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="external\Tiny_gltf\json.hpp" />
+    <ClInclude Include="external\Tiny_gltf\stb_image_write.h" />
+    <ClInclude Include="external\Tiny_gltf\tiny_gltf.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
