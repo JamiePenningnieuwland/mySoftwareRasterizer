@@ -32,6 +32,7 @@ Tmpl8::Texture::Texture(const std::string& filepath)
 	memcpy(m_Pixels, data, m_Width * m_Height * 4);
 
 	stbi_image_free(data);
+	
 }
 
 Tmpl8::Pixel Tmpl8::Texture::SampleNearestRepeat(float x, float y)
@@ -47,7 +48,10 @@ Tmpl8::Pixel Tmpl8::Texture::SampleNearestRepeat(float x, float y)
 
 	return m_Pixels[pixelX + pixelY * m_Width];
 }
-
+Tmpl8::Texture::~Texture()
+{ 
+	delete[] m_Pixels; 
+}
 Tmpl8::Pixel Tmpl8::Texture::SampleLinearRepeat(float x, float y)
 {
 	//always between 0-1

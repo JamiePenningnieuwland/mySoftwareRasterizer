@@ -33,14 +33,7 @@ namespace Tmpl8
 	{
 	public:
 		Model() = default;
-		~Model()
-		{
-			
-			for (auto& texture : m_Textures)
-			{
-				delete texture;
-			}
-		}
+		~Model();
 		Model(const std::string&);
 		void Draw(MathUtil::mat4& transform, Renderer* renderer);
 	private:

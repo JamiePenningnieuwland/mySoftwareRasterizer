@@ -1,8 +1,8 @@
 #include "precomp.h"
 #include "game.h"
-#include "Renderer.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Renderer.h"
 #include "vec.h"
 #include <string>
 
@@ -34,6 +34,7 @@ namespace Tmpl8
 		TheRenderer->FlushBuffers();
 		delete model;
 		delete TheRenderer;
+		delete camera;
 	}
 	void Game::UpdateCamera(float deltaTime)
 	{
@@ -133,8 +134,8 @@ namespace Tmpl8
 		screen->Clear(0xFFFFFF);
 
 		TheRenderer->Clear();
-		
-		model->Draw(MathUtil::mat4().identity(), TheRenderer);
+		MathUtil::mat4 transform = MathUtil::mat4().identity().rotatex(3.1415f  * -0.5f);
+		model->Draw(transform, TheRenderer);
 
 		TheRenderer->CopyToSurface(screen);
 

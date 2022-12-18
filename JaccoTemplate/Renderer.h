@@ -8,6 +8,7 @@ namespace Tmpl8
 {
 	class Surface;
 	class Camera;
+	class Texture;
 	class Renderer
 	{
 	public:
@@ -22,14 +23,15 @@ namespace Tmpl8
 		void DrawTriangle(Vertex vertexOne, Vertex vertexTwo, Vertex vertexThree);
 		void Clear();
 		void CopyToSurface(Surface* aSurface);
-		void BindTexture(class Texture* texture) { m_BoundTexture = texture; };
+		void BindTexture(Texture* texture);
 		
 		Camera* m_CameraRef{nullptr};
 	private:
 		void ScanLine(MathUtil::vec3 aStart, MathUtil::vec3 aEnd, MathUtil::vec3 aBCstart, MathUtil::vec3 aBCend, bool aRightHanded);
-		unsigned int m_BitMap[ScreenWidth * ScreenHeight * 4];
+		unsigned int m_BitMap[ScreenWidth * ScreenHeight];
 		int m_BeginBuffer[ScreenHeight];
 		int m_EndBuffer[ScreenHeight];
+		float m_DepthBuffer[ScreenWidth * ScreenHeight];
 
 		MathUtil::vec3 m_BarycentricStart[ScreenHeight];
 		MathUtil::vec3 m_BarycentricEnd[ScreenHeight];

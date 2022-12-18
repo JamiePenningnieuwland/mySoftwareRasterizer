@@ -15,8 +15,8 @@ namespace Tmpl8
 		MathUtil::mat4 GetView();
 		MathUtil::mat4 GetProjection();
 
-		MathUtil::vec3 position;
-		MathUtil::vec3 rotation;
+		MathUtil::vec3 position = {0.f,0.f,0.f};
+		MathUtil::vec3 rotation = { 0.f,0.f,0.f };
 	private:
 		float m_Fov;
 		float m_Far;

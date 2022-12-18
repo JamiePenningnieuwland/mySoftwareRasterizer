@@ -28,9 +28,9 @@ private:
 
 private:
 	Surface* screen{ nullptr };
-	class Camera* camera;
-	class Model* model;
-	class Renderer* TheRenderer;
+	class Camera* camera{ nullptr };
+	class Model* model{ nullptr };
+	class Renderer* TheRenderer{ nullptr };
 };
 
 }; 

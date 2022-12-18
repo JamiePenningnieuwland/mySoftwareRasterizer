@@ -13,6 +13,7 @@ void Tmpl8::Renderer::FillShape(Vertex& vertexOne, Vertex& vertexTwo, Vertex& ve
 {
 	MathUtil::vec3 oneOverW = { vertexOne.position.w, vertexTwo.position.w, vertexThree.position.w };
 	oneOverW = MathUtil::vec3(1.f) / oneOverW;
+	
 
 	for (int y = 0; y < ScreenHeight; y++)
 	{
@@ -37,6 +38,13 @@ void Tmpl8::Renderer::FillShape(Vertex& vertexOne, Vertex& vertexTwo, Vertex& ve
 			if (x >= ScreenWidth)
 				break;
 
+			MathUtil::vec4 position = vertexOne.position * BCcoordinate.x +
+				vertexTwo.position * BCcoordinate.y +
+				vertexThree.position * BCcoordinate.z;
+
+			if (m_DepthBuffer[x + y * ScreenWidth] < position.z / position.w)
+				continue;
+
 			MathUtil::vec2 texcoord = vertexOne.texCoords * BCcoordinate.x +
 				vertexTwo.texCoords * BCcoordinate.y +
 				vertexThree.texCoords * BCcoordinate.z;
@@ -45,6 +53,7 @@ void Tmpl8::Renderer::FillShape(Vertex& vertexOne, Vertex& vertexTwo, Vertex& ve
 			m_BitMap[x + y * ScreenWidth] = m_BoundTexture->SampleLinearRepeat(texcoord.x, texcoord.y);
 			//m_BitMap[x + y * ScreenWidth] = m_BoundTexture->SampleNearestRepeat(texcoord.x, texcoord.y);
 			//m_BitMap[x + y * ScreenWidth] = Vec3ToPixel(BCcoordinate);
+			m_DepthBuffer[x + y * ScreenWidth] = position.z / position.w;
 			currentBC += BCstep;
 		}
 	}
@@ -85,6 +94,8 @@ void Tmpl8::Renderer::Draw(const MathUtil::mat4& modelMatrix, const Vertex* aVer
 
 void Tmpl8::Renderer::ScanLine(MathUtil::vec3 aStart, MathUtil::vec3 aEnd, MathUtil::vec3 aBCstart, MathUtil::vec3 aBCend, bool aRightHanded)
 {
+	Texture* i = m_BoundTexture;
+
 	int yStart = static_cast<int>(ceilf(aStart.y));
 	//if it is out of screen
 	if (yStart > ScreenHeight)
@@ -111,7 +122,7 @@ void Tmpl8::Renderer::ScanLine(MathUtil::vec3 aStart, MathUtil::vec3 aEnd, MathU
 
 	MathUtil::vec3 currentBC = aBCstart;
 	
-	for(int y = yStart; y <= yEnd; y++)
+	for(int y = yStart; y < yEnd; y++)
 	{
 		buffer[y] = static_cast<int>(round(currentX));
 		BCbuffer[y] = currentBC;
@@ -123,6 +134,9 @@ void Tmpl8::Renderer::ScanLine(MathUtil::vec3 aStart, MathUtil::vec3 aEnd, MathU
 
 void Tmpl8::Renderer::DrawTriangle(Vertex vertexOne, Vertex vertexTwo, Vertex vertexThree)
 {
+	//printf("begin draw\n");
+	//printf("%i\n",m_BoundTexture);
+
 
 	FlushBuffers();
 	MathUtil::vec4 vertexPos[3] = { vertexOne.position, vertexTwo.position, vertexThree.position };
@@ -192,17 +206,21 @@ void Tmpl8::Renderer::DrawTriangle(Vertex vertexOne, Vertex vertexTwo, Vertex ve
 
 	bool handedness = !(oneTo2.cross(oneTo3) < 0.f);
 
+
 	ScanLine(vertexPos[0], vertexPos[2], BCCoordinates[0], BCCoordinates[2], handedness);
 	ScanLine(vertexPos[0], vertexPos[1], BCCoordinates[0], BCCoordinates[1], !handedness);
 	ScanLine(vertexPos[1], vertexPos[2], BCCoordinates[1], BCCoordinates[2], !handedness);
+	
+	
 
 	FillShape(vertexOne, vertexTwo, vertexThree);
 }
 void Tmpl8::Renderer::Clear()
 {
-	for(int i = 0; i < ScreenWidth * ScreenHeight * 4; i++)
+	for(int i = 0; i < ScreenWidth * ScreenHeight; i++)
 	{
 		m_BitMap[i] = 0x000000000;
+		m_DepthBuffer[i] = 1.f;
 	}
 }
 void Tmpl8::Renderer::CopyToSurface(Surface* aSurface)
@@ -213,6 +231,10 @@ void Tmpl8::Renderer::CopyToSurface(Surface* aSurface)
 		return;
 	}
 	memcpy(aSurface->GetBuffer(), m_BitMap, (static_cast<size_t>(ScreenHeight * ScreenWidth) * 4));
+}
+void Tmpl8::Renderer::BindTexture(Texture* texture)
+{
+	m_BoundTexture = texture;
 }
 void Tmpl8::Renderer::FlushBuffers()
 {

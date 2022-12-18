@@ -9,15 +9,15 @@ namespace Tmpl8
 	public:
 		Texture(int width, int height);
 		Texture(const std::string& filepath);
-		~Texture() { delete[] m_Pixels; }
+		~Texture();
 
 		Pixel SampleNearestRepeat(float x, float y); 
 		Pixel SampleLinearRepeat(float x, float y);
 	private:
-		int m_Width;
-		int m_Height;
+		int m_Width = 0;
+		int m_Height = 0;
 
-		Pixel* m_Pixels;
+		Pixel* m_Pixels{ nullptr };
 	};
 }
 

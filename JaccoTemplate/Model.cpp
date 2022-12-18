@@ -36,7 +36,8 @@ Tmpl8::Model::Model(const std::string& filePath)
 	{
 		std::filesystem::path fullPath = filePath;
 		std::string fileName = tinyModel.images[texture.source].uri;
-		m_Textures.push_back(new Texture(fullPath.parent_path().string() + "/" + fileName));
+		Texture* t = new Texture(fullPath.parent_path().string() + "/" + fileName);
+		m_Textures.push_back(t);
 	}
 	//meshes
 	for(auto& mesh : tinyModel.meshes)
@@ -131,11 +132,19 @@ Tmpl8::Model::Model(const std::string& filePath)
 	printf("Loaded model");
 }
 
+Tmpl8::Model::~Model()
+{
+	for (auto& texture : m_Textures)
+	{
+		delete texture;
+	}
+}
+
 void Tmpl8::Model::Draw(MathUtil::mat4& transform, Renderer* renderer)
 {
-	renderer->BindTexture(m_Textures[0]);
 	for(auto& mesh: m_Meshes)
 	{
+		renderer->BindTexture(m_Textures[0]);
 		mesh.Draw(transform, renderer);
 	}
 }
