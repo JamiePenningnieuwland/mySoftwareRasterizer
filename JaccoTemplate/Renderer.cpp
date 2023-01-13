@@ -50,12 +50,60 @@ void Tmpl8::Renderer::FillShape(Vertex& vertexOne, Vertex& vertexTwo, Vertex& ve
 				vertexThree.texCoords * BCcoordinate.z;
 
 			//m_BitMap[x + y * ScreenWidth] = Vec3ToPixel(MathUtil::vec3(texcoord.x, texcoord.y, 0.f));
-			m_BitMap[x + y * ScreenWidth] = m_BoundTexture->SampleLinearRepeat(texcoord.x, texcoord.y);
+			//m_BitMap[x + y * ScreenWidth] = m_BoundTexture->SampleLinearRepeat(texcoord.x, texcoord.y);
 			//m_BitMap[x + y * ScreenWidth] = m_BoundTexture->SampleNearestRepeat(texcoord.x, texcoord.y);
-			//m_BitMap[x + y * ScreenWidth] = Vec3ToPixel(BCcoordinate);
+			m_BitMap[x + y * ScreenWidth] = Vec3ToPixel(BCcoordinate);
 			m_DepthBuffer[x + y * ScreenWidth] = position.z / position.w;
 			currentBC += BCstep;
 		}
+	}
+}
+bool Tmpl8::Renderer::ClipPlane(std::vector<Vertex>& vertices, std::vector<Vertex>& resultVertices, int axis)
+{
+	ClipComponent(vertices, axis, 1.0f, resultVertices);
+	vertices.clear();
+
+	if(resultVertices.empty())
+		return false;
+
+	ClipComponent(resultVertices, axis, -1.0f, vertices);
+	resultVertices.clear();
+	
+	return !vertices.empty();
+}
+void Tmpl8::Renderer::ClipComponent(std::vector<Vertex>& vertices, int plane, float componentFactor, std::vector<Vertex>& resultVertices)
+{
+	Vertex previousVertex = vertices[vertices.size() - 1];
+	float previousComponent =  previousVertex.position[plane] * componentFactor;
+	bool previousInside = previousComponent <= previousVertex.position.w;
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		Vertex currentVertex = vertices[i];
+		float currentComponent = currentVertex.position[plane] * componentFactor;
+		bool currentInside = currentComponent <= currentVertex.position.w;
+
+		//only one is true
+		if(currentInside ^ previousInside)
+		{
+			float lerpAmt = (previousVertex.position.w - previousComponent) /
+				((previousVertex.position.w - previousComponent) -
+					(currentVertex.position.w - currentComponent));
+
+			Vertex outPutVertex;
+			outPutVertex.position = MathUtil::Lerp(previousVertex.position, currentVertex.position, { lerpAmt, lerpAmt, lerpAmt,lerpAmt });
+			//outPutVertex.NDC = MathUtil::Lerp(outPutVertex.NDC, currentVertex.NDC, { lerpAmt, lerpAmt, lerpAmt,lerpAmt });
+			outPutVertex.texCoords = MathUtil::Lerp(previousVertex.texCoords, currentVertex.texCoords, { lerpAmt, lerpAmt});
+			
+			resultVertices.push_back(outPutVertex);
+		}
+		if(currentInside)
+		{
+			resultVertices.push_back(currentVertex);
+		}
+		previousVertex = currentVertex;
+		previousComponent = currentComponent;
+		previousInside = currentInside;
 	}
 }
 
@@ -84,11 +132,50 @@ void Tmpl8::Renderer::Draw(const MathUtil::mat4& modelMatrix, const Vertex* aVer
 		outVertices.push_back(vertices[1]);
 		outVertices.push_back(vertices[2]);
 	}
-
 	//draw the transformed triangle list
 	for(int i = 0; i < outVertices.size(); i+=3)
 	{
-		DrawTriangle(outVertices[i + 0], outVertices[i + 1], outVertices[i + 2]);
+		std::vector<Vertex> clippedVertices;
+		std::vector<Vertex> tempList;
+		clippedVertices.push_back(outVertices[i + 0]);
+		clippedVertices.push_back(outVertices[i + 1]);
+		clippedVertices.push_back(outVertices[i + 2]);
+
+		//clipping
+		if(ClipPlane(clippedVertices, tempList, 0) &&
+			ClipPlane(clippedVertices, tempList, 1) &&
+				ClipPlane(clippedVertices, tempList, 2))
+		{
+
+			for (int j = 0; j < clippedVertices.size(); j++)
+			{
+
+				clippedVertices[j].NDC.x = clippedVertices[j].position.x / clippedVertices[j].position.w;
+				clippedVertices[j].NDC.y = clippedVertices[j].position.y / clippedVertices[j].position.w;
+				clippedVertices[j].NDC.z = clippedVertices[j].position.z / clippedVertices[j].position.w;
+				clippedVertices[j].NDC.w = clippedVertices[j].position.w / clippedVertices[j].position.w;
+			}
+
+
+			Vertex initialVertex = clippedVertices[0];
+			for (int j = 1; j < clippedVertices.size() - 1; j++)
+			{
+				DrawTriangle(initialVertex, clippedVertices[j], clippedVertices[j + 1]);
+			}
+		}
+	/*	for (int j = 0; j < 3; j++)
+		{
+			shouldAdd = shouldAdd && vertexPos[j].x > -1.f;
+			shouldAdd = shouldAdd && vertexPos[j].x < 1.f;
+
+			shouldAdd = shouldAdd && vertexPos[j].y > -1.f;
+			shouldAdd = shouldAdd && vertexPos[j].y < 1.f;
+
+			shouldAdd = shouldAdd && vertexPos[j].z > -1.f;
+			shouldAdd = shouldAdd && vertexPos[j].z < 1.f;
+		}*/
+
+		
 	}
 }
 
@@ -139,77 +226,53 @@ void Tmpl8::Renderer::DrawTriangle(Vertex vertexOne, Vertex vertexTwo, Vertex ve
 
 
 	FlushBuffers();
-	MathUtil::vec4 vertexPos[3] = { vertexOne.position, vertexTwo.position, vertexThree.position };
-	for (int j = 0; j < 3; j++)
-	{
-
-		vertexPos[j] = vertexPos[j] / vertexPos[j].w;
-	}
-	//clipping
-	bool shouldAdd = true;
-	for (int j = 0; j < 3; j++)
-	{
-
-		shouldAdd = shouldAdd && vertexPos[j].x > -1.f;
-		shouldAdd = shouldAdd && vertexPos[j].x < 1.f;
-
-		shouldAdd = shouldAdd && vertexPos[j].y > -1.f;
-		shouldAdd = shouldAdd && vertexPos[j].y < 1.f;
-
-		shouldAdd = shouldAdd && vertexPos[j].z > -1.f;
-		shouldAdd = shouldAdd && vertexPos[j].z < 1.f;
-	}
-	if (!shouldAdd)
-		return;
+	
 
 	MathUtil::mat4 m_NDCtoScreenM;
 
-	m_NDCtoScreenM.cell[0] = static_cast<float>(ScreenWidth) / 2.f; m_NDCtoScreenM.cell[1] = 0.f; m_NDCtoScreenM.cell[2] = 0.f; m_NDCtoScreenM.cell[3] = static_cast<float>(ScreenWidth) / 2.f;
-	m_NDCtoScreenM.cell[4] = 0.f; m_NDCtoScreenM.cell[5] = -static_cast<float>(ScreenHeight) / 2.f; m_NDCtoScreenM.cell[6] = 0.f; m_NDCtoScreenM.cell[7] = static_cast<float>(ScreenHeight) / 2.f;
+	m_NDCtoScreenM.cell[0] = -static_cast<float>(ScreenWidth) / 2.f; m_NDCtoScreenM.cell[1] = 0.f; m_NDCtoScreenM.cell[2] = 0.f; m_NDCtoScreenM.cell[3] = static_cast<float>(ScreenWidth) / 2.f;
+	m_NDCtoScreenM.cell[4] = 0.f; m_NDCtoScreenM.cell[5] = static_cast<float>(ScreenHeight) / 2.f; m_NDCtoScreenM.cell[6] = 0.f; m_NDCtoScreenM.cell[7] = static_cast<float>(ScreenHeight) / 2.f;
 	m_NDCtoScreenM.cell[8] = 0.f; m_NDCtoScreenM.cell[9] = 0.f; m_NDCtoScreenM.cell[10] = 1.f; m_NDCtoScreenM.cell[11] = 0.f;
 	m_NDCtoScreenM.cell[12] = 0.f; m_NDCtoScreenM.cell[13] = 0.f; m_NDCtoScreenM.cell[14] = 0.f; m_NDCtoScreenM.cell[15] = 1.f;
 	//transform from ndc to screenspace
-	for (int j = 0; j < 3; j++)
-	{
-		vertexPos[j] = vertexPos[j] * m_NDCtoScreenM;
-	}
+	
+	vertexOne.NDC = vertexOne.NDC * m_NDCtoScreenM;
+	vertexTwo.NDC = vertexTwo.NDC * m_NDCtoScreenM;
+	vertexThree.NDC = vertexThree.NDC * m_NDCtoScreenM;
 
 
 	MathUtil::vec3 BCCoordinates[3] = { MathUtil::vec3(1,0,0) ,MathUtil::vec3(0,1,0) ,  MathUtil::vec3(0,0,1) };
 
 	//order the points
-	if (vertexPos[0].y > vertexPos[1].y)
+	if (vertexOne.NDC.y > vertexTwo.NDC.y)
 	{
-		std::swap(vertexPos[0], vertexPos[1]);
-		std::swap(BCCoordinates[0], BCCoordinates[1]);
-		//std::swap(vertexOne, vertexTwo);
+		//std::swap(BCCoordinates[0], BCCoordinates[1]);
+		std::swap(vertexOne, vertexTwo);
 	}
-	if(vertexPos[1].y > vertexPos[2].y)
+	if(vertexTwo.NDC.y > vertexThree.NDC.y)
 	{
-		std::swap(vertexPos[1], vertexPos[2]);
-		std::swap(BCCoordinates[1], BCCoordinates[2]);
-		//std::swap(vertexTwo, vertexThree);
+		//std::swap(BCCoordinates[1], BCCoordinates[2]);
+		std::swap(vertexTwo, vertexThree);
 
 	}
-	if (vertexPos[0].y > vertexPos[1].y)
+	if (vertexOne.NDC.y > vertexTwo.NDC.y)
 	{
-		std::swap(vertexPos[0], vertexPos[1]);
-		std::swap(BCCoordinates[0], BCCoordinates[1]);
-		//std::swap(vertexOne, vertexTwo);
+		//std::swap(BCCoordinates[0], BCCoordinates[1]);
+		std::swap(vertexOne, vertexTwo);
 	}
 
-	MathUtil::vec2 oneTo2 = MathUtil::vec2(vertexPos[0].x, vertexPos[0].y) -
-		MathUtil::vec2(vertexPos[1].x, vertexPos[1].y);
+	MathUtil::vec2 oneTo2 = MathUtil::vec2(vertexOne.NDC.x, vertexOne.NDC.y) -
+		MathUtil::vec2(vertexTwo.NDC.x, vertexTwo.NDC.y);
 
-	MathUtil::vec2 oneTo3 = MathUtil::vec2(vertexPos[0].x, vertexPos[0].y) -
-		MathUtil::vec2(vertexPos[2].x, vertexPos[2].y);
+	MathUtil::vec2 oneTo3 = MathUtil::vec2(vertexOne.NDC.x, vertexOne.NDC.y) -
+		MathUtil::vec2(vertexThree.NDC.x, vertexThree.NDC.y);
 
 	bool handedness = !(oneTo2.cross(oneTo3) < 0.f);
 
 
-	ScanLine(vertexPos[0], vertexPos[2], BCCoordinates[0], BCCoordinates[2], handedness);
-	ScanLine(vertexPos[0], vertexPos[1], BCCoordinates[0], BCCoordinates[1], !handedness);
-	ScanLine(vertexPos[1], vertexPos[2], BCCoordinates[1], BCCoordinates[2], !handedness);
+	ScanLine(vertexOne.NDC, vertexThree.NDC, BCCoordinates[0], BCCoordinates[2], handedness);
+	ScanLine(vertexOne.NDC, vertexTwo.NDC, BCCoordinates[0], BCCoordinates[1], !handedness);
+	ScanLine(vertexTwo.NDC, vertexThree.NDC, BCCoordinates[1], BCCoordinates[2], !handedness);
 	
 	
 

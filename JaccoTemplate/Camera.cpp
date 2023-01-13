@@ -30,8 +30,8 @@ MathUtil::mat4 Tmpl8::Camera::GetProjection()
 	float OneOvernearminfar = 1.f / (m_Near - m_Far);
 	projection[0] = scale/m_AspectRatio; projection[1] = 0.f;                    projection[2] = 0.f;											projection[3] = 0.f;
 	projection[4] = 0.f;				 projection[5] = scale;					 projection[6] = 0.f;											projection[7] = 0.f;
-	projection[8] = 0.f;				 projection[9] = 0.f;                    projection[10] = (m_Far + m_Near) * OneOvernearminfar;			projection[11] = -2.f * m_Far * m_Near * OneOvernearminfar;
-	projection[12] = 0.f;				 projection[13] = 0.f;                   projection[14] = -1.f;											projection[15] = 0.f;
+	projection[8] = 0.f;				 projection[9] = 0.f;                    projection[10] = ( -m_Near - m_Far) * OneOvernearminfar;			projection[11] = 2.f * m_Far * m_Near * OneOvernearminfar;
+	projection[12] = 0.f;				 projection[13] = 0.f;                   projection[14] = 1.f;											projection[15] = 0.f;
 
     return projection;
 }

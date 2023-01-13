@@ -294,8 +294,10 @@ namespace MathUtil
 }
 	struct Vertex
 	{
+		MathUtil::vec4 NDC = { 0.f,0.f,0.f,0.f };
 		MathUtil::vec4 position = {0.f,0.f,0.f,1.f};
 		MathUtil::vec2 texCoords;
+	
 	};
 
 	struct Triangle

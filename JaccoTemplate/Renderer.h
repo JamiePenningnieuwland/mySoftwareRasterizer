@@ -2,7 +2,7 @@
 
 #include "template.h"
 #include <vec.h>
-
+#include <vector>
 
 namespace Tmpl8
 {
@@ -27,6 +27,8 @@ namespace Tmpl8
 		
 		Camera* m_CameraRef{nullptr};
 	private:
+		bool ClipPlane(std::vector<Vertex>&  vertices, std::vector<Vertex>& resultVertices, int axis);
+		void ClipComponent(std::vector<Vertex>&  vertices, int plane, float componentFactor, std::vector<Vertex>& resultVertices);
 		void ScanLine(MathUtil::vec3 aStart, MathUtil::vec3 aEnd, MathUtil::vec3 aBCstart, MathUtil::vec3 aBCend, bool aRightHanded);
 		unsigned int m_BitMap[ScreenWidth * ScreenHeight];
 		int m_BeginBuffer[ScreenHeight];
